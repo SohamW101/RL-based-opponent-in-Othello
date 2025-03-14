@@ -1,7 +1,7 @@
-# stategy is to maximize eval till middle game and simply maximize own pieces in the endgame
-
 import gamelogic
 import copy
+
+# stategy is to maximize eval till middle game and simply maximize own pieces in the endgame
 
 # board_posn is a 2-d list: +1 if white piece, -1 if black, else 0
 

@@ -1,3 +1,5 @@
+import copy
+
 class Cell:
     def __init__(self, x, y, status=0):
         self.x = x
@@ -84,6 +86,16 @@ def make_move(x, y, whose_turn, current_board):
             return True
 
     return False
+
+def valid_moves(board_posn, whose_turn):    # returns 2-d array in format [[3,1], [2,4]] etc.
+    valid_moves_arr = []    
+    for y in range(6):
+        for x in range(6):
+            temp_board = copy.deepcopy(board_posn)
+            if make_move(x, y, whose_turn, temp_board):
+                valid_moves_arr.append([x, y])
+                
+    return valid_moves_arr
 
 
 # Check for passes

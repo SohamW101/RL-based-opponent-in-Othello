@@ -149,13 +149,13 @@ def train_nn(X_train, Y_train, W1, b1, W2, b2, epochs, learning_rate):
 
 
 def predict(X, W1, b1, W2, b2):
-    _, A2, _, _ = forward(X, W1, b1, W2, b2)
+    _, A2, _, _ = forward(X, W1, b1, W2, b2)    
     return A2
 
 
 
 # Example usage
-X_train = []
+"""X_train = []
 for i in range(100):  
     sample = []
     for j in range(36):
@@ -178,5 +178,4 @@ for i in range(36):
     X_test.append(random.uniform(-1, 1))
 
 prediction = predict(X_test, W1, b1, W2, b2)
-print("Prediction:", prediction)
-
+print("Prediction:", prediction)"""
