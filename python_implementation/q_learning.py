@@ -1,6 +1,9 @@
 import copy
+import random
+
 import nn
 import mobility_strategy
+import posn_strategy
 import gamelogic
 import store_weights
 
@@ -28,18 +31,25 @@ def valid_move_indices(valid_moves_arr):
         indices.append(index)
     return indices
 
+
+# DQN
+
 # reward function based on mobility player evaluation formula
 def reward_fn(board_posn, whose_turn, x, y):
     return mobility_strategy.eval(board_posn, whose_turn, x, y)
 
-def forward_q_values(board_posn, whose_turn):
-    weights = store_weights.load_weights()
+def forward_q_values(board_posn, whose_turn, W1, b1, W2, b2 ):
+    """weights = store_weights.load_weights()
     if weights is None:
         W1, b1, W2, b2 = nn.initialize_nn(36, 44, 36)  # Initialize if no saved weights
     else:
-        W1, b1, W2, b2 = weights  # Load saved weights
+        W1, b1, W2, b2 = weights  # Load saved weights"""
 
     valid_moves_arr = gamelogic.valid_moves(board_posn, whose_turn)
+
+    #print("Inside forward_q_values fn")
+    #print("valid moves")
+    #print(valid_moves_arr)
     flattened_board = flatten_board(board_posn)
     flattened_valid_move_indices = valid_move_indices(valid_moves_arr)
 
@@ -49,43 +59,148 @@ def forward_q_values(board_posn, whose_turn):
         if move not in flattened_valid_move_indices:
             A2[move] = -10000     # set to a very low value
 
-    return A1, A2, Z1, Z2
+    best_move_index = max(range(36), key=lambda move: A2[move])
 
-def target_q_values(board_posn, whose_turn):
+    return A1, A2, Z1, Z2, best_move_index
+
+def target_q_values(board_posn, whose_turn, W1, b1, W2, b2):
     valid_moves_arr = gamelogic.valid_moves(board_posn, whose_turn)
     q_targets = []
     gamma = 0.9     # set to 0.9
 
-    for move in all_posns():
-        if move in valid_moves_arr:
-            reward = reward_fn(board_posn, whose_turn, move[0], move[1])
+    #print("inside target q values")
+    #print("valid moves")
+    #print(valid_moves_arr)
+    #gamelogic.print_board(board_posn)
 
-            temp_board = copy.deepcopy(board_posn)
-            gamelogic.make_move(move[0], move[1], whose_turn, temp_board)
+    for i in range(36):
+        x = i % 6
+        y = i // 6
+        if [x, y] in valid_moves_arr:
+            reward = reward_fn(board_posn, whose_turn, x, y)
 
-            _, next_A2, _, _ = forward_q_values(temp_board, whose_turn)
-            q_target_move = reward + gamma * max(next_A2)  # temp_board has been updated in earlier line
-            q_targets.append(q_target_move)
+            temp_board = gamelogic.deepcopy_2d_list(board_posn)
+            gamelogic.make_move(x, y, whose_turn, temp_board)
+
+            _, next_A2, _, _, _ = forward_q_values(temp_board, gamelogic.toggle(whose_turn), W1, b1, W2, b2)
+            q_target_move = reward + gamma * max(next_A2)
         else:
-            q_targets.append(-10000)
+            q_target_move = -10000
+
+        q_targets.append(q_target_move)
+
+    gamelogic.print_board(board_posn)
 
     return q_targets
 
-def predict_qs(board_posn, whose_turn):
-    _, A2, _, _ = forward_q_values(board_posn, whose_turn)
-    return A2
 
-def train_rl(board_posn, whose_turn, learning_rate=0.1, epochs=10000):
-    flattened_board = flatten_board(board_posn)
+def train_rl(board_posn, whose_turn, W1, b1, W2, b2, epochs = 3, learning_rate = 0.1):
+    for epoch in range(epochs):
+        loss = 0
+        #gamelogic.print_board(board_posn)
+        input_board = flatten_board(board_posn)
+        q_targets = target_q_values(board_posn, whose_turn, W1, b1, W2, b2)
 
-    weights = store_weights.load_weights()
-    if weights is None:
-        W1, b1, W2, b2 = nn.initialize_nn(36, 44, 36)  # Initialize if no saved weights
+        A1, A2, Z1, Z2, best_move_index = forward_q_values(board_posn, whose_turn, W1, b1, W2, b2)
+        W1, b1, W2, b2 = nn.backward(input_board, q_targets, A1, A2, Z1, Z2, W1, b1, W2, b2, learning_rate)
+
+        target_move_index = max(range(36), key=lambda move: q_targets[move])
+
+        loss += (q_targets[target_move_index] - A2[best_move_index]) ** 2
+
+        if epoch % 1 == 0:
+            print(f"Epoch {epoch}, Loss = {loss / 36}")
+            print()
+            print()
+    return W1, b1, W2, b2
+
+
+def predict_qs(board_posn, whose_turn, W1, b1, W2, b2 ):
+    _, A2, _, _, best_move_index = forward_q_values(board_posn, whose_turn, W1, b1, W2, b2 )
+    return A2, best_move_index
+
+
+# play
+def select_move(board_posn, whose_turn, epsilon=0.1):
+    valid_moves = gamelogic.valid_moves(board_posn, whose_turn)
+
+    if not valid_moves:
+        return None
+    
+    # Exploration
+    if random.random() < epsilon:
+        return random.choice(valid_moves)
+    # Exploitation
+    A2, _ = predict_qs(board_posn, whose_turn, W1, b1, W2, b2)
+    
+    max_q_pred = -10000     # initialize to a low value
+
+    best_move = None
+    for move in valid_moves:
+        x, y = move
+        idx = y * 6 + x
+        if A2[idx] > max_q_pred:
+            max_q_pred = A2[idx]
+            best_move = [x, y]
+
+    return best_move
+
+
+# GAME TRAINING against self and positional strategy player
+
+def self_play_and_train(W1, b1, W2, b2, board_posn, whose_turn, prev_pass_flag = 0):    # recursive function
+    chosen_move = select_move(board_posn, whose_turn)    
+    if not chosen_move:
+        if prev_pass_flag == 0:
+            prev_pass_flag = 1
+            self_play_and_train(W1, b1, W2, b2, board_posn, whose_turn)
+        else:
+            return
     else:
-        W1, b1, W2, b2 = weights
+        prev_pass_flag = 0
+        gamelogic.make_move(chosen_move[0], chosen_move[1], whose_turn, board_posn)
+        train_rl(board_posn, whose_turn,  W1, b1, W2, b2)    # train on updated state and turn
+        self_play_and_train( W1, b1, W2, b2, board_posn, gamelogic.toggle(whose_turn), prev_pass_flag)
 
-    q_targets = target_q_values(board_posn, whose_turn)
+def play_against_posn_strategy_and_train(W1, b1, W2, b2, board_posn, whose_turn, train_as, prev_pass_flag=0):   # again - recursive
+    rl_turn = train_as  # RL agent plays as -1 (black) or 1 (white)
 
-    W1, b1, W2, b2 = nn.train_nn([flattened_board], [q_targets], W1, b1, W2, b2, epochs, learning_rate)     # Without [], flattened_board (which is a list of 36 values) would be interpreted as 36 separate training samples, rather than one board state.
+    if whose_turn == rl_turn:
+        chosen_move = select_move(board_posn, whose_turn)
+    else:
+        chosen_move = posn_strategy.strategy(board_posn, whose_turn)
 
-    store_weights.save_weights(W1, b1, W2, b2)
+    if not chosen_move:
+        if prev_pass_flag == 0:
+            prev_pass_flag = 1
+            play_against_posn_strategy_and_train(W1, b1, W2, b2, board_posn, gamelogic.toggle(whose_turn), train_as, prev_pass_flag)
+        else:
+            return  # both passed, game ends
+    else:
+        prev_pass_flag = 0
+        gamelogic.make_move(chosen_move[0], chosen_move[1], whose_turn, board_posn)
+        if whose_turn == rl_turn:
+            train_rl(board_posn, whose_turn, W1, b1, W2, b2)  # train RL agent on its move
+        play_against_posn_strategy_and_train(W1, b1, W2, b2, board_posn, gamelogic.toggle(whose_turn), train_as, prev_pass_flag)
+
+
+
+# execute the training
+board_posn = gamelogic.generate_board()
+W1, b1, W2, b2 = nn.initialize_nn(36, 24, 36)
+
+# train_rl(board_posn, -1, W1, b1, W2, b2)
+
+self_play_and_train(W1, b1, W2, b2, board_posn, -1)
+
+"""for game in range(5):
+    current_board = gamelogic.deepcopy_2d_list(board_posn)
+    self_play_and_train(W1, b1, W2, b2, current_board, -1)
+
+for game in range(5):
+    current_board = gamelogic.deepcopy_2d_list(board_posn)
+    current_board2 = gamelogic.deepcopy_2d_list(board_posn)
+    play_against_posn_strategy_and_train(W1, b1, W2, b2, current_board, -1, -1)
+    play_against_posn_strategy_and_train(W1, b1, W2, b2, current_board2, -1, 1)"""
+
+

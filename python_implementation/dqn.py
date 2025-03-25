@@ -156,7 +156,7 @@ def predict(X, W1, b1, W2, b2):
 
 
 
-"""# Example usage
+# Example usage
 # XOR dataset
 X_train = [[0,0], [0,1], [1,0], [1,1]]
 Y_train = [[0], [1], [1], [0]]
@@ -169,4 +169,4 @@ train_nn(X_train, Y_train, W1, b1, W2, b2, 1000, 0.1)
 
 # Test
 for x in X_train:
-    print(f"{x} => {predict(x, W1, b1, W2, b2)}")"""
+    print(f"{x} => {predict(x, W1, b1, W2, b2)}")

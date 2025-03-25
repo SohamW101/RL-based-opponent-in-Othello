@@ -33,8 +33,8 @@ def is_endgame(board_posn):
     return False
 
 
-def eval(board_posn, whose_turn, endgame):      #whose_turn will have value +1 for white and -1 for black
-    if endgame:  # Endgame evaluation
+def eval(board_posn, whose_turn):      #whose_turn will have value +1 for white and -1 for black
+    if is_endgame(board_posn):  # Endgame evaluation
         nplayer = 0
         nopponent = 0
         for i in range(6):
@@ -61,7 +61,7 @@ def strategy(board_posn, whose_turn):
 
     for i in range(6):
         for j in range(6):
-            temp_board = copy.deepcopy(board_posn)  # Copy board to test move
+            temp_board = gamelogic.deepcopy_2d_list(board_posn)  # Copy board to test move
 
             if gamelogic.make_move(i, j, whose_turn, temp_board):  
                 move_eval = eval(temp_board, whose_turn)  
@@ -70,4 +70,4 @@ def strategy(board_posn, whose_turn):
                     best_x = i
                     best_y = j
 
-    return best_x, best_y 
+    return [best_x, best_y] 

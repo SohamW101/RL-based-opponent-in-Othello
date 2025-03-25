@@ -11,22 +11,27 @@ def eval(board_posn, whose_turn, x, y):
     w1 = 10
     w2 = 1
 
-    temp_board = copy.deepcopy(board_posn)
+    # victory case
+    temp_board4 = gamelogic.deepcopy_2d_list(board_posn)
+    if gamelogic.auto_pass(whose_turn, temp_board4) and gamelogic.auto_pass(gamelogic.toggle(whose_turn), board_posn):
+        return 10000
+
+    temp_board = gamelogic.deepcopy_2d_list(board_posn)
     gamelogic.make_move(x, y, whose_turn, temp_board)   # this will update temp_board to that move
-    temp_board2 = copy.deepcopy(temp_board)
-    temp_board3 = copy.deepcopy(temp_board)
+    temp_board2 = gamelogic.deepcopy_2d_list(temp_board)
+    temp_board3 = gamelogic.deepcopy_2d_list(temp_board)
     count1 = len(gamelogic.valid_moves(temp_board, whose_turn))
-    count2 = len(gamelogic.valid_moves(temp_board2, whose_turn * -1))
+    count2 = len(gamelogic.valid_moves(temp_board2, gamelogic.toggle(whose_turn)))
     
     corner_count = 0
     for coord in [[0, 0], [0, 5], [5, 0], [5, 5]]:
         if temp_board3[coord[0]][coord[1]] == whose_turn:
             corner_count += 1
 
-    return w1 * (count1 - count2) / (count1 + count2) + w2 * corner_count
+    return w1 * (count1 - count2) / (count1 + count2 + 1) + w2 * corner_count
 
 def strategy(board_posn, whose_turn):
-    temp_board = copy.deepcopy(board_posn)
+    temp_board = gamelogic.deepcopy_2d_list(board_posn)
     available_moves = gamelogic.valid_moves(temp_board, whose_turn)
 
     max_eval = -1000    # set to a very low value 
@@ -37,5 +42,5 @@ def strategy(board_posn, whose_turn):
             best_x = move[0]
             best_y = move[1]
 
-    return best_x, best_y
+    return [best_x, best_y]
     
