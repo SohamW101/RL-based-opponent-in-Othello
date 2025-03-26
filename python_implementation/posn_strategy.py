@@ -59,6 +59,8 @@ def strategy(board_posn, whose_turn):
     best_y = -1
     best_eval = -10000  # Start with a very low score
 
+    success_flag = 1
+
     for i in range(6):
         for j in range(6):
             temp_board = gamelogic.deepcopy_2d_list(board_posn)  # Copy board to test move
@@ -69,5 +71,9 @@ def strategy(board_posn, whose_turn):
                     best_eval = move_eval
                     best_x = i
                     best_y = j
+                    success_flag = 0
 
-    return [best_x, best_y] 
+    if success_flag == 0:
+        return [best_x, best_y]
+    else:
+        return None

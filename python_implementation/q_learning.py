@@ -153,7 +153,7 @@ def self_play_and_train(W1, b1, W2, b2, board_posn, whose_turn, prev_pass_flag =
     if not chosen_move:
         if prev_pass_flag == 0:
             prev_pass_flag = 1
-            self_play_and_train(W1, b1, W2, b2, board_posn, whose_turn)
+            self_play_and_train(W1, b1, W2, b2, board_posn, gamelogic.toggle(whose_turn), prev_pass_flag)
         else:
             return
     else:
@@ -161,6 +161,8 @@ def self_play_and_train(W1, b1, W2, b2, board_posn, whose_turn, prev_pass_flag =
         gamelogic.make_move(chosen_move[0], chosen_move[1], whose_turn, board_posn)
         train_rl(board_posn, whose_turn,  W1, b1, W2, b2)    # train on updated state and turn
         self_play_and_train( W1, b1, W2, b2, board_posn, gamelogic.toggle(whose_turn), prev_pass_flag)
+
+
 
 def play_against_posn_strategy_and_train(W1, b1, W2, b2, board_posn, whose_turn, train_as, prev_pass_flag=0):   # again - recursive
     rl_turn = train_as  # RL agent plays as -1 (black) or 1 (white)
@@ -189,9 +191,14 @@ def play_against_posn_strategy_and_train(W1, b1, W2, b2, board_posn, whose_turn,
 board_posn = gamelogic.generate_board()
 W1, b1, W2, b2 = nn.initialize_nn(36, 24, 36)
 
-# train_rl(board_posn, -1, W1, b1, W2, b2)
+train_rl(board_posn, -1, W1, b1, W2, b2)
 
 self_play_and_train(W1, b1, W2, b2, board_posn, -1)
+
+play_against_posn_strategy_and_train(W1, b1, W2, b2, board_posn, -1, -1)
+play_against_posn_strategy_and_train(W1, b1, W2, b2, board_posn, 1, -1)
+
+
 
 """for game in range(5):
     current_board = gamelogic.deepcopy_2d_list(board_posn)

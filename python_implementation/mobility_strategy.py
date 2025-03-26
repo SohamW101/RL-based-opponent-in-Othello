@@ -14,7 +14,7 @@ def eval(board_posn, whose_turn, x, y):
     # victory case
     temp_board4 = gamelogic.deepcopy_2d_list(board_posn)
     if gamelogic.auto_pass(whose_turn, temp_board4) and gamelogic.auto_pass(gamelogic.toggle(whose_turn), board_posn):
-        return 10000
+        return 0
 
     temp_board = gamelogic.deepcopy_2d_list(board_posn)
     gamelogic.make_move(x, y, whose_turn, temp_board)   # this will update temp_board to that move
