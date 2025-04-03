@@ -181,23 +181,30 @@ double *predict(nn *nnpointer, double *x)
 
 void free_nn(nn *nnpointer)
 {
-    if (!nnpointer) return;
+    if (!nnpointer)
+    return;
     
-    if (nnpointer->w1) {
+    if (nnpointer->w1)
+    {
         for (int i = 0; i < nnpointer->hidden_size; i++) {
             if (nnpointer->w1[i]) free(nnpointer->w1[i]);
         }
         free(nnpointer->w1);
     }
 
-    if (nnpointer->w2) {
+    if (nnpointer->w2)
+    {
         for (int i = 0; i < nnpointer->output_size; i++) {
             if (nnpointer->w2[i]) free(nnpointer->w2[i]);
         }
         free(nnpointer->w2);
     }
 
-    if (nnpointer->b1) free(nnpointer->b1);
-    if (nnpointer->b2) free(nnpointer->b2);
+    if (nnpointer->b1)
+    free(nnpointer->b1);
+    
+    if (nnpointer->b2)
+    free(nnpointer->b2);
+    
     free(nnpointer);
 }
