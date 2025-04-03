@@ -44,7 +44,7 @@ nn *initialise_nn(int input_size, int hidden_size, int output_size)
         nnpointer->w2[i] = (double *)(malloc)(hidden_size * sizeof(double));
         for (int j = 0; j < hidden_size; j++)
         {
-            nnpointer->w2[i][j] = ((double)rand() / RAND_MAX); //stored in a 2d array, because each hidden layer has different number of neurons and each neuron corresponds to n number of weights
+            nnpointer->w2[i][j] = ((double)rand() / RAND_MAX) * 0.2 - 0.1; //stored in a 2d array, because each hidden layer has different number of neurons and each neuron corresponds to n number of weights
         }
     }
 
@@ -107,6 +107,16 @@ void backward(nn *nnpointer, double *x, double *y, double *a1, double *a2, doubl
         nnpointer->b2[i] -= lr * dz2[i]; //update biases
     }
 
+    for (int i = 0; i < nnpointer->hidden_size; i++)
+    {
+        dz1[i] = 0;
+        for (int j = 0; j < nnpointer->output_size; j++)
+        {
+            dz1[i] += dz2[j] * nnpointer->w2[j][i];
+        }
+        dz1[i] *= tanh_deriv(z1[i]);
+    }
+
     for (int i = 0; i < nnpointer->hidden_size; i++)//same as above
     {
         for (int j = 0; j < nnpointer->input_size; j++)
@@ -120,7 +130,7 @@ void backward(nn *nnpointer, double *x, double *y, double *a1, double *a2, doubl
     free(dz1);
 }
 
-void train_nn(nn *nnpointer, double **xtrain, double **ytrain, int trainsize, int epochs, int lr)
+void train_nn(nn *nnpointer, double **xtrain, double **ytrain, int trainsize, int epochs, double lr)
 {
     for (int epoch = 0; epoch < epochs; epoch++)
     {
@@ -169,21 +179,25 @@ double *predict(nn *nnpointer, double *x)
     return a2; //returns output activation
 }
 
-void free_nn(nn *nnpointer)//free all the allocated memory
+void free_nn(nn *nnpointer)
 {
-    for (int i = 0; i < nnpointer->hidden_size; i++)
-    {
-        free(nnpointer->w1[i]);
+    if (!nnpointer) return;
+    
+    if (nnpointer->w1) {
+        for (int i = 0; i < nnpointer->hidden_size; i++) {
+            if (nnpointer->w1[i]) free(nnpointer->w1[i]);
+        }
+        free(nnpointer->w1);
     }
-    free(nnpointer->w1);
 
-    for (int i = 0; i < nnpointer->output_size; i++)
-    {
-        free(nnpointer->w2[i]);
+    if (nnpointer->w2) {
+        for (int i = 0; i < nnpointer->output_size; i++) {
+            if (nnpointer->w2[i]) free(nnpointer->w2[i]);
+        }
+        free(nnpointer->w2);
     }
-    free(nnpointer->w2);
 
-    free(nnpointer->b1);
-    free(nnpointer->b2);
+    if (nnpointer->b1) free(nnpointer->b1);
+    if (nnpointer->b2) free(nnpointer->b2);
     free(nnpointer);
 }
