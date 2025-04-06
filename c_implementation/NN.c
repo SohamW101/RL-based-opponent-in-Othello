@@ -1,15 +1,5 @@
 #include "mlbasics.h"
-
-typedef struct
-{
-    int input_size;
-    int hidden_size;
-    int output_size;
-    double **w1; // each neuron in a layer connects to multiple in the next hence double pointer
-    double *b1;  // each weight is an indepent constt hence one pointer
-    double **w2;
-    double *b2;
-} nn;
+#include "NN.h"
 
 double tanh_deriv(double x)
 {
