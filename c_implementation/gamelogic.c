@@ -1,8 +1,6 @@
 // 1 = white, -1 = black, 0 = empty
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<stdbool.h>
+#include"gamelogic.h"
 
 
 
