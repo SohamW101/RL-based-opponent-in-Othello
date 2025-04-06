@@ -1,4 +1,5 @@
 #include"gamelogic.h"
+#include "mobility_strategy.h"
 
 double count_valid_moves(int** valid_moves_arr){
     int count = 0;
