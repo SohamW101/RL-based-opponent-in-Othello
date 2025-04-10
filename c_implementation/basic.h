@@ -530,6 +530,17 @@ move2 strat(int** board_posn, int whose_turn){
 
 //neural network
 
+typedef struct
+{
+    int input_size;
+    int hidden_size;
+    int output_size;
+    double **w1; // each neuron in a layer connects to multiple in the next hence double pointer
+    double *b1;  // each weight is an indepent constt hence one pointer
+    double **w2;
+    double *b2;
+} nn;
+
 double tanh_deriv(double x)
 {
     return 1 - pow(tanh(x), 2);
