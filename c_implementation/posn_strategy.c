@@ -1,5 +1,5 @@
 #include "gamelogic.h"
-
+#include "posn_strategy.h"
 
 int posn_values[6][6] = {
     {100,  -20,  10,  10,  -20,  100},
@@ -75,11 +75,6 @@ int check(int** board_posn, int whose_turn){
     }
 
 }
-
-typedef struct{
-    int best_x;
-    int best_y;
-}  move2;
 
 //this fn is the same as strategy fn in posn_strategy python code
 move2 strat(int** board_posn, int whose_turn){
