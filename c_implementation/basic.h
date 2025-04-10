@@ -396,6 +396,17 @@ move strategy(int** board_posn, int whose_turn){
     return best_coords;
 }
 
+
+
+
+
+
+//posn strategy
+typedef struct{
+    int best_x;
+    int best_y;
+}  move2;
+
 int posn_values[6][6] = {
     {100,  -20,  10,  10,  -20,  100},
     {-20,  -50,  -2,  -2,  -50,  -20},
