@@ -39,7 +39,7 @@ int *flatten_board(int **board_posn)
     return flat_board;
 }
 
-int *valid_move_indices(int valid_moves_arr[][2], int num_moves)
+int *valid_move_indices(int** valid_moves_arr, int num_moves)
 {
     int *indices = malloc(sizeof(int) * num_moves);
     for (int i = 0; i < num_moves; i++)
@@ -79,7 +79,7 @@ typedef struct
     int best_move_index;
 } q_values;
 
-q_values *forward_q_values(int **board_posn, int whose_turn)
+q_values *forward_q_values(int **board_posn, int whose_turn, nn* nnpointer)
 {
     q_values *qpointer = malloc(sizeof(q_values));
 
@@ -96,7 +96,7 @@ q_values *forward_q_values(int **board_posn, int whose_turn)
     }
 
     double *a1, *a2, *z1, *z2;
-    forward(flatten_board, input, &a1, &a2, &z1, &z2);
+    forward(nnpointer, input, &a1, &a2, &z1, &z2);
 
     for (int move = 0; move < 36; move++)
     {
@@ -130,7 +130,7 @@ q_values *forward_q_values(int **board_posn, int whose_turn)
     qpointer->z2 = z2;
     qpointer->best_move_index = best_move_index;
 
-    free(flatten_board);
+    free(flattened_board);
     free(flattened_valid_move_indices);
     free(input);
 
@@ -195,7 +195,7 @@ q_targets *target_q_values(int **board_posn, int whose_turn, nn *nnpointer)
             int **temp_board = deepcopy_2d_list(board_posn);
             make_move(x, y, whose_turn, temp_board);
 
-            q_values *next_q = forward_q_values(temp_board, toggle(whose_turn));
+            q_values *next_q = forward_q_values(temp_board, toggle(whose_turn), nnpointer);
 
             qtpointer->qts[i] = reward + gamma * next_q->a2[next_q->best_move_index];
 
@@ -250,7 +250,7 @@ void train_rl(int **board_posn, int whose_turn, nn *nnpointer, double learning_r
         }
 
         q_targets *qt = target_q_values(board_posn, whose_turn, nnpointer);
-        q_values *qv = forward_q_values(board_posn, whose_turn);
+        q_values *qv = forward_q_values(board_posn, whose_turn, nnpointer);
 
         int target_move_index = 0;
         for (int i = 1; i < 36; i++)
@@ -284,7 +284,7 @@ typedef struct
     int best_move_index;
 } predict_result;
 
-predict_result *predict_qs(int **board_posn, int whose_turn, nn *pointer)
+predict_result *predict_qs(int **board_posn, int whose_turn, nn *nnpointer)
 {
     predict_result *pred = malloc(sizeof(predict_result));
 
@@ -294,7 +294,7 @@ predict_result *predict_qs(int **board_posn, int whose_turn, nn *pointer)
         exit(1);
     }
 
-    q_values *qv = forward_q_values(board_posn, whose_turn);
+    q_values *qv = forward_q_values(board_posn, whose_turn, nnpointer);
     if (qv == NULL)
     {
         printf("error in predict_qs function");
@@ -355,8 +355,8 @@ move_coord *select_move(int **board_posn, int whose_turn, nn *nnpointer, double 
     if (random < epsilon)
     {
         int random_index = rand() % num_moves;
-        selected_move->x = valid_moves_arr[random_index];
-        selected_move->y = valid_moves_arr[random_index];
+        selected_move->x = valid_moves_arr[random_index][0];
+        selected_move->y = valid_moves_arr[random_index][1];
     }
 
     else
