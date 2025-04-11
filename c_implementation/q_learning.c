@@ -1,7 +1,6 @@
 #include "basic.h"
 #include "NN/NN.h"
 
-// Helper function to check if the board is full
 int is_board_full(int **board_posn) {
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
@@ -474,6 +473,7 @@ void play_against_posn_strategy_and_train(nn* nnpointer,int **board_posn,int who
 
 void main(){
     int **board_posn = generate_board();
+    print_board(board_posn); 
     nn *nnpointer = initialise_nn(36,24,36);
     int whose_turn = -1;
     train_rl(board_posn,-1,nnpointer,0.1);
