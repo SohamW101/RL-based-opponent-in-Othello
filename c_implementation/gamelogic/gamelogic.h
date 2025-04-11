@@ -1,6 +1,7 @@
 #ifndef GAMELOGIC_H
 #define GAMELOGIC_H
 
+#include "mobility/mobility_strategy.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>

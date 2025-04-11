@@ -1,4 +1,4 @@
-#include"gamelogic.h"
+#include"gamelogic/gamelogic.h"
 #include "mobility_strategy.h"
 
 void free_2d_array(int** arr){

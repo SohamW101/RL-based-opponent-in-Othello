@@ -1,6 +1,7 @@
 #ifndef BASIC_H
 #define BASIC_H
 
+#include "mobility/mobility_strategy.h"
 #include "mlbasics.h"
 #include<stdio.h>
 #include<stdlib.h>
@@ -364,10 +365,10 @@ double eval(int** board_posn,int whose_turn, int x, int y){
     return w1 * (count1 - count2) / (count1 + count2 + 1) + w2 * corner_count;
 }
 
-typedef struct{
-    int best_x;
-    int best_y;
-}  move;
+// typedef struct{
+//     int best_x;
+//     int best_y;
+// }  move;
 
 move strategy(int** board_posn, int whose_turn){
     int** temp_board = deepcopy_2d_list(board_posn);

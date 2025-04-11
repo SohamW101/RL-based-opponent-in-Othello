@@ -4,17 +4,18 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include "basic.h"
 
-typedef struct
-{
-    int input_size;
-    int hidden_size;
-    int output_size;
-    double **w1; // each neuron in a layer connects to multiple in the next hence double pointer
-    double *b1;  // each weight is an indepent constt hence one pointer
-    double **w2;
-    double *b2;
-} nn;
+// typedef struct
+// {
+//     int input_size;
+//     int hidden_size;
+//     int output_size;
+//     double **w1; // each neuron in a layer connects to multiple in the next hence double pointer
+//     double *b1;  // each weight is an indepent constt hence one pointer
+//     double **w2;
+//     double *b2;
+// } nn;
 
 double tanh_deriv(double x);
 nn *initialise_nn(int input_size, int hidden_size, int output_size);
@@ -24,4 +25,4 @@ void train_nn(nn *nnpointer, double **xtrain, double **ytrain, int trainsize, in
 double *predict(nn *nnpointer, double *x);
 void free_nn(nn *nnpointer);
 
-#endif;
+#endif

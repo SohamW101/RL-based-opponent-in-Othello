@@ -339,13 +339,13 @@ move_coord *select_move(int **board_posn, int whose_turn, nn *nnpointer, double 
     int **valid_moves_arr = valid_moves(board_posn, whose_turn);
     if (valid_moves_arr == NULL)
     {
-        print_board("error in select move function");
+        printf("error in select move function");
         return NULL;
     }
 
     int num_moves = num_valid_moves(valid_moves_arr);
     move_coord *selected_move = malloc(sizeof(move_coord));
-    if (select_move == NULL)
+    if (selected_move == NULL)
     {
         printf("error in select move function");
         return NULL;
