@@ -1,6 +1,18 @@
 #include "basic.h"
 #include "NN/NN.h"
 
+// Helper function to check if the board is full
+int is_board_full(int **board_posn) {
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            if (board_posn[i][j] == 0) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 int **all_posns()
 {
     int **board = malloc(sizeof(int *) * 6 * 6);
@@ -403,6 +415,10 @@ move_coord *select_move(int **board_posn, int whose_turn, nn *nnpointer, double 
 int prev_pass_flag = 0;
 
 void self_play_and_train(nn *nnpointer, int **board_posn, int whose_turn, double epsilon, double learning_rate) {
+    if (is_board_full(board_posn)) {
+        return;
+    }
+
     move_coord* chosen_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
     
     if (!chosen_move) {
@@ -415,6 +431,7 @@ void self_play_and_train(nn *nnpointer, int **board_posn, int whose_turn, double
     } else {
         prev_pass_flag = 0;
         make_move(chosen_move->x, chosen_move->y, whose_turn, board_posn);
+        print_board(board_posn);
         train_rl(board_posn, whose_turn, nnpointer, learning_rate);
         self_play_and_train(nnpointer, board_posn, toggle(whose_turn), epsilon, learning_rate);
     }
@@ -422,6 +439,11 @@ void self_play_and_train(nn *nnpointer, int **board_posn, int whose_turn, double
 
 
 void play_against_posn_strategy_and_train(nn* nnpointer,int **board_posn,int whose_turn,int train_as,double epsilon,double learning_rate){
+    if (is_board_full(board_posn)) {
+        return;
+    }
+
+
     int rl_turn = train_as;
     move_coord* chosen_move = select_move(board_posn,whose_turn,nnpointer,epsilon);
     move dum_move = strategy(board_posn,whose_turn); 
