@@ -1,5 +1,4 @@
 #include "basic.h"
-#include "NN/NN.h"
 
 int is_board_full(int **board_posn) {
     for (int i = 0; i < 6; i++) {
