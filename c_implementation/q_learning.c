@@ -517,6 +517,9 @@ void main()
     fprintf(fptr,"\n");
 
      for(int i = 0;i<hidden_size;i++){
+        for(int j = 0;j<input_size;j++){
+            fprintf(fptr,"lf ",nnpointer->w1[i][j]);
+        }
     fprintf(fptr,"lf ",nnpointer->w1[i]);
     }
 
@@ -529,7 +532,10 @@ void main()
     fprintf(fptr,"\n");
 
     for(int i = 0;i<output_size;i++){
-        fprintf(fptr,"lf ",nnpointer->w2[i]);
+        for(int j = 0;j<hidden_size;j++){
+            fprintf(fptr,"lf ",nnpointer->w2[i][j]);
+        }
+        fprintf(fptr,"\n");
     }
 
     fclose(fptr);

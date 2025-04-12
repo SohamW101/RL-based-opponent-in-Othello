@@ -490,6 +490,41 @@ void play_against_posn_strategy_and_train(nn *nnpointer, int **board_posn, int w
         }
         play_against_posn_strategy_and_train(nnpointer, board_posn, whose_turn, train_as, epsilon, learning_rate);
     }
+
+    int input_size = 36;
+    int hidden_size = 24;
+    int output_size = 36;
+
+    FILE *fptr;
+    fptr = fopen("weights.txt","w");
+
+    for(int i = 0;i<hidden_size;i++){
+    fprintf(fptr,"%lf ",nnpointer->b1[i]);
+    }
+    
+    fprintf(fptr,"\n");
+
+     for(int i = 0;i<hidden_size;i++){
+        for(int j = 0;j<input_size;j++){
+            fprintf(fptr,"%lf ",nnpointer->w1[i][j]);
+        }
+        fprintf(fptr,"\n");
+    }
+
+    for(int i = 0;i<output_size;i++){
+        fprintf(fptr,"%lf ",nnpointer->b2[i]);
+    }
+
+    fprintf(fptr,"\n");
+
+    for(int i = 0;i<output_size;i++){
+        for(int j = 0;j<hidden_size;j++){
+            fprintf(fptr,"%lf ",nnpointer->w2[i][j]);
+        }
+        fprintf(fptr,"\n");
+    }
+
+    fclose(fptr);
 }
 
 
