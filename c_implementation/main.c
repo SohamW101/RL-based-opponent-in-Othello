@@ -39,6 +39,7 @@ int prev_pass_flag = 0;
 
 void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_turn, int train_as, double epsilon, double learning_rate) {
     if (is_board_full(board_posn)) {
+        victory_check(board_posn);
         return;
     }
 
