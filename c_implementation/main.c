@@ -51,30 +51,47 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
         if (!chosen_move) {
             if (prev_pass_flag == 0) {
                 prev_pass_flag = 1;
-                play_against_posn_strategy_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
-            } else return;
+                play_against_human_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
+            } 
+            else {
+                victory_check(board_posn);               
+                return;
+            }
         } else {
             prev_pass_flag = 0;
             make_move(chosen_move->x, chosen_move->y, whose_turn, board_posn);
             train_rl(board_posn, whose_turn, nnpointer, learning_rate);
-            play_against_posn_strategy_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
+            play_against_human_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
         }
     } else {
         // Human's turn
         int x, y;
         printf("Your turn! Enter your move (x y): ");
         scanf("%d %d", &x, &y);
+        int **valid_moves_arr = valid_moves(board_posn, whose_turn);
+        if (num_valid_moves(valid_moves_arr) == 0) {
+            if (prev_pass_flag == 0) {
+                prev_pass_flag = 1;
+                play_against_human_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
+            } 
+            else {
+                victory_check(board_posn);               
+                return;
+            }
+        }
 
         if (is_valid_move(x, y, whose_turn, board_posn)) {
             prev_pass_flag = 0;
             make_move(x, y, whose_turn, board_posn);
             play_against_human_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
-        } else {
+        } 
+        else if (!(is_valid_move(x, y, whose_turn, board_posn))){
             printf("Invalid move! Try again.\n");
             play_against_human_and_train(nnpointer, board_posn, whose_turn, train_as, epsilon, learning_rate);
         }
     }
 }
+
 
 void main(){
     int **board_posn = generate_board();
