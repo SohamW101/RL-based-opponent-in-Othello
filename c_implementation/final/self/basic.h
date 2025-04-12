@@ -669,7 +669,7 @@ void save_weights(const char *filename, nn* nnpointer)
 {
     FILE* fptr = fopen(filename, "w");
     if (!fptr) {
-        printf("Error: Could not open file %s for writing\n", filename);
+        printf("error in svae weights");
         return;
     }
 
@@ -706,7 +706,7 @@ nn* load_weights(const char* filename, nn* nnpointer)
     FILE* fptr = fopen(filename, "r");
     
     if (!fptr) {
-        printf("error in load weights\n", filename);
+        printf("error in load weights\n");
         return NULL;
     }
 
