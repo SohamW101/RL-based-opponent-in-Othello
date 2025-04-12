@@ -493,7 +493,10 @@ void main()
 {
     int **board_posn = generate_board();
     print_board(board_posn);
-    nn *nnpointer = initialise_nn(36, 24, 36);
+    int input_size = 36;
+    int hidden_size = 24;
+    int output_size = 36;
+    nn *nnpointer = initialise_nn(input_size, hidden_size, output_size);
     int whose_turn = -1;
     train_rl(board_posn, -1, nnpointer, 0.1);
     prev_pass_flag = 0;
@@ -503,4 +506,31 @@ void main()
     prev_pass_flag = 0;
     play_against_posn_strategy_and_train(nnpointer, board_posn, 1, -1, 0.1, 0.1);
     prev_pass_flag = 0;
+
+    FILE *fptr;
+    fptr = fopen("weights.txt",'w');
+
+    for(int i = 0;i<hidden_size;i++){
+    fprintf(fptr,"lf ",nnpointer->b1[i]);
+    }
+    
+    fprintf(fptr,"\n");
+
+     for(int i = 0;i<hidden_size;i++){
+    fprintf(fptr,"lf ",nnpointer->w1[i]);
+    }
+
+    fprintf(fptr,"\n");
+
+    for(int i = 0;i<output_size;i++){
+        fprintf(fptr,"lf ",nnpointer->b2[i]);
+    }
+
+    fprintf(fptr,"\n");
+
+    for(int i = 0;i<output_size;i++){
+        fprintf(fptr,"lf ",nnpointer->w2[i]);
+    }
+
+    fclose(fptr);
 }

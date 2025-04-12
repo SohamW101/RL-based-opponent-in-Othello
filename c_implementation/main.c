@@ -63,9 +63,38 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
 
 
 void main(){
+    FILE *fptr2;
+    int input_size = 36;
+    int hidden_size = 24;
+    int output_size = 36;
+    int 
+    fptr2 = fopen("weights.txt",'r');
+    nn *nnpointer;
+    if (fegtc(fptr2) == NULL){
+        nnpointer = initialise_nn(36,24,36);
+    }
+    else{
+        for (int i = 0; i < hidden_size; i++) {
+            fscanf(fptr2, "%lf", &nnpointer->b1[i]);
+        }
+        
+        for (int i = 0; i < hidden_size; i++) {
+            fscanf(fptr2, "%lf", &nnpointer->w1[i]);
+        }
+        
+        for (int i = 0; i < output_size; i++) {
+            fscanf(fptr2, "%lf", &nnpointer->b2[i]);
+        }
+        
+        for (int i = 0; i < output_size; i++) {
+            fscanf(fptr2, "%lf", &nnpointer->w2[i]);
+        }
+    }
+
+    fclose(fptr2);
+
     int **board_posn = generate_board();
     print_board(board_posn); 
-    nn *nnpointer = initialise_nn(36,24,36);
     int whose_turn = -1;
     //train_rl(board_posn,-1,nnpointer,0.1);
     prev_pass_flag = 0;
