@@ -98,7 +98,30 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
 void main(){
     int **board_posn = generate_board();
     print_board(board_posn); 
-    nn *nnpointer = initialise_nn(36,24,36);
+    
+    nn *nnpointer = initialise_nn(36, 24, 36);
+    if (!nnpointer) {
+        printf("issue in nnpointer in main");
+        return;
+    }
+
+    // Try to load existing weights
+    FILE* check_file = fopen("weights.txt", "r");
+    if (check_file != NULL) {
+        fclose(check_file);
+        printf("loading weightss\n");
+        nn* temp = load_weights("weights.txt", nnpointer);
+        if (temp != NULL) {
+            printf("weights loaded\n");
+        } else {
+            printf("issue with weight loading in main\n");
+        }
+    } else {
+        printf("no weights, random weights used\n");
+    }
+
+
+    //train against human
     int whose_turn = -1;
     train_rl(board_posn,-1,nnpointer,0.1);
     prev_pass_flag = 0;
@@ -110,5 +133,13 @@ void main(){
 
     printf("play with human now\n\n");
     play_against_human_and_train(nnpointer,board_posn,-1,1,0.1,0.1);
-    prev_pass_flag = 0;
+    save_weights("weights.txt", nnpointer);
+
+    // Cleanup
+    free_nn(nnpointer);
+    for(int i = 0; i < 6; i++) {
+        free(board_posn[i]);
+    }
+    free(board_posn);
+
 }
