@@ -36,8 +36,6 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
     else {
         // Human's turn
         int x, y;
-        printf("Your turn! Enter your move (x y): ");
-        scanf("%d %d", &x, &y);
         if (num_valid_moves(valid_moves_arr) == 0) {
             if (prev_pass_flag == 0) {
                 prev_pass_flag = 1;
@@ -47,6 +45,10 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
                 victory_check(board_posn);               
                 return;
             }
+        }
+        else{
+            printf("Your turn! Enter your move (x y): ");
+            scanf("%d %d", &x, &y);
         }
 
         if (make_move(x, y, whose_turn, board_posn)) {
