@@ -285,6 +285,8 @@ void train_rl(int **board_posn, int whose_turn, nn *nnpointer, double learning_r
         printf("epoch %d, loss = %f", epoch + 1, loss / 36.0);
         printf("\n\n");
 
+        save_weights("weights.txt",nnpointer);
+
         free(input_board);
         free(flat_board);
         free(qt->qts);
