@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "basic.h"
 #include "NN.h"
 
 typedef struct
