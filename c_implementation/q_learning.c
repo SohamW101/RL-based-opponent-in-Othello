@@ -1,9 +1,14 @@
 #include "basic.h"
+#include "NN/NN.h"
 
-int is_board_full(int **board_posn) {
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 6; j++) {
-            if (board_posn[i][j] == 0) {
+int is_board_full(int **board_posn) //it was printing extra boards after the game ended, this is to check if its happening and to stop it
+{
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 6; j++)
+        {
+            if (board_posn[i][j] == 0)
+            {
                 return 0;
             }
         }
@@ -11,7 +16,7 @@ int is_board_full(int **board_posn) {
     return 1;
 }
 
-int **all_posns()
+int **all_posns() //generates all possible positions on the board
 {
     int **board = malloc(sizeof(int *) * 6 * 6);
     int index = 0;
@@ -34,7 +39,7 @@ int **all_posns()
     return board;
 }
 
-int *flatten_board(int **board_posn)
+int *flatten_board(int **board_posn) //2d board to 1d in order to pass it through the NN
 {
     int *flat_board = malloc(sizeof(int) * 6 * 6);
     int index = 0;
@@ -49,7 +54,7 @@ int *flatten_board(int **board_posn)
     return flat_board;
 }
 
-int *valid_move_indices(int** valid_moves_arr, int num_moves)
+int *valid_move_indices(int **valid_moves_arr, int num_moves) //used to convert each valid move to their indices
 {
     int *indices = malloc(sizeof(int) * num_moves);
     for (int i = 0; i < num_moves; i++)
@@ -61,7 +66,7 @@ int *valid_move_indices(int** valid_moves_arr, int num_moves)
     return indices;
 }
 
-int num_valid_moves(int **valid_moves_arr)
+int num_valid_moves(int **valid_moves_arr) //counts all valid moves, finds NULL
 {
     int count = 0;
     if (valid_moves_arr == NULL)
@@ -69,7 +74,6 @@ int num_valid_moves(int **valid_moves_arr)
         return 0;
     }
 
-    // Count until we hit NULL pointer which marks end of array
     while (valid_moves_arr[count] != NULL)
     {
         count++;
@@ -78,7 +82,7 @@ int num_valid_moves(int **valid_moves_arr)
     return count;
 }
 
-double reward_fn(int **board_posn, int whose_turn, int x, int y)
+double reward_fn(int **board_posn, int whose_turn, int x, int y) //basic reward function used to define where it should take the next move
 {
     return eval(board_posn, whose_turn, x, y);
 }
@@ -89,7 +93,7 @@ typedef struct
     int best_move_index;
 } q_values;
 
-q_values *forward_q_values(int **board_posn, int whose_turn, nn* nnpointer)
+q_values *forward_q_values(int **board_posn, int whose_turn, nn *nnpointer)
 {
     q_values *qpointer = malloc(sizeof(q_values));
 
@@ -273,7 +277,7 @@ void train_rl(int **board_posn, int whose_turn, nn *nnpointer, double learning_r
 
         loss = pow(qt->qts[target_move_index] - qv->a2[qv->best_move_index], 2);
 
-        printf("epoch %d, loss = %f", epoch, loss / 36.0);
+        printf("epoch %d, loss = %f", epoch + 1, loss / 36.0);
         printf("\n\n");
 
         free(input_board);
@@ -412,21 +416,29 @@ move_coord *select_move(int **board_posn, int whose_turn, nn *nnpointer, double 
 
 int prev_pass_flag = 0;
 
-void self_play_and_train(nn *nnpointer, int **board_posn, int whose_turn, double epsilon, double learning_rate) {
-    if (is_board_full(board_posn)) {
+void self_play_and_train(nn *nnpointer, int **board_posn, int whose_turn, double epsilon, double learning_rate)
+{
+    if (is_board_full(board_posn))
+    {
         return;
     }
 
-    move_coord* chosen_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
-    
-    if (!chosen_move) {
-        if (prev_pass_flag == 0) {
+    move_coord *chosen_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
+
+    if (!chosen_move)
+    {
+        if (prev_pass_flag == 0)
+        {
             prev_pass_flag = 1;
             self_play_and_train(nnpointer, board_posn, toggle(whose_turn), epsilon, learning_rate);
-        } else {
+        }
+        else
+        {
             return;
         }
-    } else {
+    }
+    else
+    {
         prev_pass_flag = 0;
         make_move(chosen_move->x, chosen_move->y, whose_turn, board_posn);
         print_board(board_posn);
@@ -435,52 +447,60 @@ void self_play_and_train(nn *nnpointer, int **board_posn, int whose_turn, double
     }
 }
 
-
-void play_against_posn_strategy_and_train(nn* nnpointer,int **board_posn,int whose_turn,int train_as,double epsilon,double learning_rate){
-    if (is_board_full(board_posn)) {
+void play_against_posn_strategy_and_train(nn *nnpointer, int **board_posn, int whose_turn, int train_as, double epsilon, double learning_rate)
+{
+    if (is_board_full(board_posn))
+    {
         return;
     }
 
-
     int rl_turn = train_as;
-    move_coord* chosen_move = select_move(board_posn,whose_turn,nnpointer,epsilon);
-    move dum_move = strategy(board_posn,whose_turn); 
-    if (whose_turn == rl_turn){
-        chosen_move = select_move(board_posn,whose_turn,nnpointer,epsilon);
+    move_coord *chosen_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
+    move2 dum_move = strat(board_posn, whose_turn);
+    if (whose_turn == rl_turn)
+    {
+        chosen_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
     }
-    else{
+    else
+    {
         chosen_move->x = dum_move.best_x;
         chosen_move->y = dum_move.best_y;
     }
 
-    if(!chosen_move){
-        if (prev_pass_flag == 0){
+    if (!chosen_move)
+    {
+        if (prev_pass_flag == 0)
+        {
             prev_pass_flag = 1;
-            play_against_posn_strategy_and_train(nnpointer,board_posn,toggle(whose_turn),train_as,epsilon,learning_rate);
+            play_against_posn_strategy_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
         }
-        else return;
+        else
+            return;
     }
-    else{
+    else
+    {
         prev_pass_flag = 0;
-        make_move(chosen_move->x,chosen_move->y,whose_turn,board_posn);
-        if(whose_turn == rl_turn){
-            train_rl(board_posn,whose_turn,nnpointer,learning_rate);
+        make_move(chosen_move->x, chosen_move->y, whose_turn, board_posn);
+        if (whose_turn == rl_turn)
+        {
+            train_rl(board_posn, whose_turn, nnpointer, learning_rate);
         }
-        play_against_posn_strategy_and_train(nnpointer,board_posn,whose_turn,train_as,epsilon,learning_rate);
+        play_against_posn_strategy_and_train(nnpointer, board_posn, whose_turn, train_as, epsilon, learning_rate);
     }
 }
 
-void main(){
+void main()
+{
     int **board_posn = generate_board();
-    print_board(board_posn); 
-    nn *nnpointer = initialise_nn(36,24,36);
+    print_board(board_posn);
+    nn *nnpointer = initialise_nn(36, 24, 36);
     int whose_turn = -1;
-    train_rl(board_posn,-1,nnpointer,0.1);
+    train_rl(board_posn, -1, nnpointer, 0.1);
     prev_pass_flag = 0;
-    self_play_and_train(nnpointer,board_posn,whose_turn,0.1,0.1);
+    self_play_and_train(nnpointer, board_posn, whose_turn, 0.1, 0.1);
     prev_pass_flag = 0;
-    play_against_posn_strategy_and_train(nnpointer,board_posn,-1,-1,0.1,0.1);
+    play_against_posn_strategy_and_train(nnpointer, board_posn, -1, -1, 0.1, 0.1);
     prev_pass_flag = 0;
-    play_against_posn_strategy_and_train(nnpointer,board_posn,1,-1,0.1,0.1);
+    play_against_posn_strategy_and_train(nnpointer, board_posn, 1, -1, 0.1, 0.1);
     prev_pass_flag = 0;
 }
