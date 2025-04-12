@@ -1,7 +1,7 @@
 #include "basic.h"
 #include "NN/NN.h"
 
-int is_board_full(int **board_posn) //it was printing extra boards after the game ended, this is to check if its happening and to stop it
+int is_board_full(int **board_posn) // it was printing extra boards after the game ended, this is to check if its happening and to stop it
 {
     for (int i = 0; i < 6; i++)
     {
@@ -16,7 +16,7 @@ int is_board_full(int **board_posn) //it was printing extra boards after the gam
     return 1;
 }
 
-int **all_posns() //generates all possible positions on the board
+int **all_posns() // generates all possible positions on the board
 {
     int **board = malloc(sizeof(int *) * 6 * 6);
     int index = 0;
@@ -39,7 +39,7 @@ int **all_posns() //generates all possible positions on the board
     return board;
 }
 
-int *flatten_board(int **board_posn) //2d board to 1d in order to pass it through the NN
+int *flatten_board(int **board_posn) // 2d board to 1d in order to pass it through the NN
 {
     int *flat_board = malloc(sizeof(int) * 6 * 6);
     int index = 0;
@@ -54,7 +54,7 @@ int *flatten_board(int **board_posn) //2d board to 1d in order to pass it throug
     return flat_board;
 }
 
-int *valid_move_indices(int **valid_moves_arr, int num_moves) //used to convert each valid move to their indices
+int *valid_move_indices(int **valid_moves_arr, int num_moves) // used to convert each valid move to their indices
 {
     int *indices = malloc(sizeof(int) * num_moves);
     for (int i = 0; i < num_moves; i++)
@@ -66,7 +66,7 @@ int *valid_move_indices(int **valid_moves_arr, int num_moves) //used to convert 
     return indices;
 }
 
-int num_valid_moves(int **valid_moves_arr) //counts all valid moves, finds NULL
+int num_valid_moves(int **valid_moves_arr) // counts all valid moves, finds NULL
 {
     int count = 0;
     if (valid_moves_arr == NULL)
@@ -82,7 +82,7 @@ int num_valid_moves(int **valid_moves_arr) //counts all valid moves, finds NULL
     return count;
 }
 
-double reward_fn(int **board_posn, int whose_turn, int x, int y) //basic reward function used to define where it should take the next move
+double reward_fn(int **board_posn, int whose_turn, int x, int y) // basic reward function used to define where it should take the next move
 {
     return eval(board_posn, whose_turn, x, y);
 }
