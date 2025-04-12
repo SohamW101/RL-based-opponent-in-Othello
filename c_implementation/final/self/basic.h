@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include "NN.h"
 
 // gamelogic
 int **deepcopy_2d_list(int **matrix)
@@ -649,5 +651,114 @@ move2 strat(int **board_posn, int whose_turn)
         return best_coords;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//save_weights
+void save_weights(const char *filename, nn* nnpointer)
+{
+    FILE* fptr = fopen(filename, "w");
+    if (!fptr) {
+        printf("Error: Could not open file %s for writing\n", filename);
+        return;
+    }
+
+    for(int i = 0; i < nnpointer->input_size; i++) {
+        for (int j = 0; j < nnpointer->hidden_size; j++) {
+            fprintf(fptr, "%.6f ", nnpointer->w1[j][i]);
+        }
+        fprintf(fptr, "\n");
+    }
+
+    for (int i = 0; i < nnpointer->hidden_size; i++) {
+        fprintf(fptr, "%.6f ", nnpointer->b1[i]);
+    }
+    fprintf(fptr, "\n");
+
+    for(int i = 0; i < nnpointer->hidden_size; i++) {
+        for (int j = 0; j < nnpointer->output_size; j++) {
+            fprintf(fptr, "%.6f ", nnpointer->w2[j][i]);
+        }
+        fprintf(fptr, "\n");
+    }
+
+    for (int i = 0; i < nnpointer->output_size; i++) {
+        fprintf(fptr, "%.6f ", nnpointer->b2[i]);
+    }
+    fprintf(fptr, "\n");
+
+    fclose(fptr);
+}
+
+nn* load_weights(const char* filename, nn* nnpointer)
+{
+    nn* temp = nnpointer;
+    FILE* fptr = fopen(filename, "r");
+    
+    if (!fptr) {
+        printf("error in load weights\n", filename);
+        return NULL;
+    }
+
+    for(int row = 0; row < temp->input_size; row++)
+    {
+        for (int column = 0; column < temp->hidden_size; column++)
+        {
+            if(fscanf(fptr, "%lf", &temp->w1[column][row]) != 1)
+            {
+                printf("error w1 row %d column %d\n", row, column);
+                fclose(fptr);
+                return NULL;
+            }
+        }
+    }
+
+    for (int i = 0; i < temp->hidden_size; i++)
+    {
+        if(fscanf(fptr, "%lf", &temp->b1[i]) != 1)
+        {
+            printf("error b1 %d\n", i);
+            fclose(fptr);
+            return NULL;
+        }
+    }
+
+    for(int row = 0; row < temp->hidden_size; row++)
+    {
+        for (int column = 0; column < temp->output_size; column++)
+        {
+            if(fscanf(fptr, "%lf", &temp->w2[column][row]) != 1)
+            {
+                printf("error w2 row %d column %d\n", row, column);
+                fclose(fptr);
+                return NULL;
+            }
+        }
+    }
+
+    for (int i = 0; i < temp->output_size; i++)
+    {
+        if(fscanf(fptr, "%lf", &temp->b2[i]) != 1)
+        {
+            printf("error b2 %d\n", i);
+            fclose(fptr);
+            return NULL;
+        }
+    }
+
+    fclose(fptr);
+    return temp;
+}
+
 
 #endif
