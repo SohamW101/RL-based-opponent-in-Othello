@@ -1,11 +1,8 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <Q_learning/q_learning.h>
-#include <NN/NN.h>
-int prev_pass_flag = 0;
+#include "q_learning.h"
+#include "NN.h"
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
-TTF_Font* font = NULL;
 
 #define CELL_SIZE 100
 #define RADIUS 40
@@ -109,7 +106,7 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
             }
         }
 
-        if (is_valid_move(x, y, whose_turn, board_posn)) {
+        if (make_move(x,y,whose_turn,board_posn)) {
             prev_pass_flag = 0;
             make_move(x, y, whose_turn, board_posn);
 
@@ -118,7 +115,7 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
 
             play_against_human_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
         } 
-        else if (!(is_valid_move(x, y, whose_turn, board_posn))){
+        else{
             printf("Invalid move! Try again.\n");
             play_against_human_and_train(nnpointer, board_posn, whose_turn, train_as, epsilon, learning_rate);
         }
@@ -128,18 +125,36 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
 
 void main(){
     SDL_Init(SDL_INIT_VIDEO);
-    TTF_Init();
     window = SDL_CreateWindow("Othello", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 6 * CELL_SIZE, 6 * CELL_SIZE + 100, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    font = TTF_OpenFont("arial.ttf", 28); // Make sure arial.ttf is in your project folder
+
+    nn *nnpointer = initialise_nn(36, 24, 36);
+    if (!nnpointer) {
+        printf("issue in nnpointer in main");
+        return;
+    }
+
+    // Try to load existing weights
+    FILE* check_file = fopen("weights.txt", "r");
+    if (check_file != NULL) {
+        fclose(check_file);
+        printf("loading weightss\n");
+        nn* temp = load_weights("weights.txt", nnpointer);
+        if (temp != NULL) {
+            printf("weights loaded\n");
+        } else {
+            printf("issue with weight loading in main\n");
+        }
+    } else {
+        printf("no weights, random weights used\n");
+    }
 
     int **board_posn = generate_board();
     print_board(board_posn); 
-    nn *nnpointer = initialise_nn(36,24,36);
     int whose_turn = -1;
-    train_rl(board_posn,-1,nnpointer,0.1);
+    //train_rl(board_posn,-1,nnpointer,0.1);
     prev_pass_flag = 0;
-    self_play_and_train(nnpointer,board_posn,whose_turn,0.1,0.1);
+    //self_play_and_train(nnpointer,board_posn,whose_turn,0.1,0.1);
     prev_pass_flag = 0;
     play_against_human_and_train(nnpointer,board_posn,-1,-1,0.1,0.1);
     prev_pass_flag = 0;

@@ -65,21 +65,28 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
 
 
 void main(){
-    FILE *fptr2 = fopen("weights.txt","r+");
+    FILE *fptr2 = fopen("weights.txt","r");
     int input_size = 36;
     int hidden_size = 24;
     int output_size = 36;
     nn *nnpointer = (nn*)malloc(sizeof(nn));
-    nnpointer->b1 = (double*)malloc(sizeof(nnpointer->b1));
-    nnpointer->b2 = (double*)malloc(sizeof(nnpointer->b2));
-    nnpointer->w1 = (double**)malloc(sizeof(nnpointer->w1));
-    nnpointer->w2 = (double**)malloc(sizeof(nnpointer->w2));
+    nnpointer->b1 = malloc(sizeof(double) * hidden_size);
+    nnpointer->w1 = malloc(sizeof(double) * hidden_size);
+    for (int i = 0; i < hidden_size; i++) {
+        nnpointer->w1[i] = malloc(sizeof(double) * input_size);
+    }
+
+    nnpointer->b2 = malloc(sizeof(double) * output_size);
+    nnpointer->w2 = malloc(sizeof(double) * output_size);
+    for (int i = 0; i < output_size; i++) {
+        nnpointer->w2[i] = malloc(sizeof(double) * hidden_size);
+    }
+
+    FILE *fptr1;
+    fptr1 = fopen("weights.txt","w");
 
     if (fgetc(fptr2) == EOF){
         nnpointer = initialise_nn(36,24,36);
-
-        FILE *fptr1;
-        fptr1 = fopen("weights.txt","w");
 
         for(int i = 0;i<hidden_size;i++){
         fprintf(fptr1,"%lf ",nnpointer->b1[i]);
@@ -108,29 +115,31 @@ void main(){
             fprintf(fptr1,"\n");
         }
 
-        fclose(fptr1);
     }
 
     else{
+        //fclose(fptr2);
+        fptr2 = fopen("weights.txt","r");
         for (int i = 0; i < hidden_size; i++) {
-            fscanf(fptr2, "%lf", &(nnpointer->b1[i]));
+            fscanf(fptr2, " %lf", &(nnpointer->b1[i]));
         }
         
         for (int i = 0; i < hidden_size; i++) {
             for(int j = 0;j < input_size;j++){
-                fscanf(fptr2, "%lf", &(nnpointer->w1[i][j]));
+                fscanf(fptr2, " %lf", &(nnpointer->w1[i][j]));
             }
         }
         
         for (int i = 0; i < output_size; i++) {
-            fscanf(fptr2, "%lf", &(nnpointer->b2[i]));
+            fscanf(fptr2, " %lf", &(nnpointer->b2[i]));
         }
         
         for (int i = 0; i < output_size; i++) {
             for(int j = 0;j < hidden_size;j++){
-                fscanf(fptr2, "%lf", &(nnpointer->w2[i][j]));
+                fscanf(fptr2, " %lf", &(nnpointer->w2[i][j]));
             }
         }
+        fclose(fptr2);
     }
 
     fclose(fptr2);
@@ -146,4 +155,35 @@ void main(){
     prev_pass_flag = 0;
    // play_against_human_and_train(nnpointer,board_posn,1,-1,0.1,0.1);
     prev_pass_flag = 0;
+
+    for(int i = 0;i<hidden_size;i++){
+
+        freopen("weights.txt", "w", fptr1);  // reopens and clears it
+
+
+        fprintf(fptr1,"%lf ",nnpointer->b1[i]);
+        }
+        
+        fprintf(fptr1,"\n");
+
+        for(int i = 0;i<hidden_size;i++){
+            for(int j = 0;j<input_size;j++){
+                fprintf(fptr1,"%lf ",nnpointer->w1[i][j]);
+            }
+            fprintf(fptr1,"\n");
+        }
+
+
+        for(int i = 0;i<output_size;i++){
+            fprintf(fptr1,"%lf ",nnpointer->b2[i]);
+        }
+
+        fprintf(fptr1,"\n");
+
+        for(int i = 0;i<output_size;i++){
+            for(int j = 0;j<hidden_size;j++){
+                fprintf(fptr1,"%lf ",nnpointer->w2[i][j]);
+            }
+            fprintf(fptr1,"\n");
+        }
 }

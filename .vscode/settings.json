@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "q_learning.h": "c"
+        "q_learning.h": "c",
+        "sdl_ttf.h": "c"
     }
 }
