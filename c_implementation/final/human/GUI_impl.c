@@ -49,7 +49,7 @@ void render_board(int **board) {
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
             if (board[i][j] != 0) {
-                SDL_Color color = (board[i][j] == 1) ? (SDL_Color){0, 0, 0, 255} : (SDL_Color){255, 255, 255, 255};
+                SDL_Color color = (board[i][j] == 1) ? (SDL_Color){255, 255, 255, 255} : (SDL_Color){0, 0, 0, 255};
                 draw_circle(renderer, j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, RADIUS, color);
             }
         }
@@ -91,6 +91,7 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
         }
     } else {
         // Human's turn
+        render_board(board_posn);
         move_coord move = handle_mouse_input(board_posn,whose_turn);
         int x = move.x;
         int y = move.y;
@@ -156,9 +157,7 @@ void main(){
     prev_pass_flag = 0;
     //self_play_and_train(nnpointer,board_posn,whose_turn,0.1,0.1);
     prev_pass_flag = 0;
-    play_against_human_and_train(nnpointer,board_posn,-1,-1,0.1,0.1);
-    prev_pass_flag = 0;
-    play_against_human_and_train(nnpointer,board_posn,1,-1,0.1,0.1);
+    play_against_human_and_train(nnpointer,board_posn,-1,1,0.1,0.1);
     prev_pass_flag = 0;
 
     SDL_DestroyRenderer(renderer);
