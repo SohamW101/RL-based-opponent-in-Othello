@@ -10,7 +10,7 @@
 c_implementation/main
 c_implementation/GUI_impl
 c_implementation/q_learning
-c_implementation/compile_commands
+c_implementation/compile_commands.txt
 
 __pycache__/
 *.pyc
