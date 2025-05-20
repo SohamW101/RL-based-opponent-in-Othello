@@ -58,12 +58,6 @@ A basic GUI is implemented using **SDL** to render the board and let humans play
 
 ---
 
-## Demo
-
-<video src='demo/trial_othello_game.mp4' width=180/> 
-
----
-
 ## 🚀 How to Run
 
 ### 1. Clone the repository
@@ -88,3 +82,6 @@ gcc -g GUI_impl.c -o GUI_impl $(sdl2-config --cflags --libs) -lm
 
 ---
 
+
+
+[def]: emo/trial_othello_game.mp
