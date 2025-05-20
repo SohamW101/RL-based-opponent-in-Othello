@@ -60,7 +60,7 @@ A basic GUI is implemented using **SDL** to render the board and let humans play
 
 ## Demo
 
-<video src='demo/trial_othello_game.webm' width=180/> 
+<video src='demo/trial_othello_game.mp4' width=180/> 
 
 ---
 
