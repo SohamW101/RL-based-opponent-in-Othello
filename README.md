@@ -60,7 +60,7 @@ A basic GUI is implemented using **SDL** to render the board and let humans play
 
 ## Demo
 
-[A sample game of trained agent (White) vs human (Black)](demo/trial_othello%20game.webm)
+<video src='demo/trial_othello_game.webm' width=180/> 
 
 ---
 
