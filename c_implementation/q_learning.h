@@ -1,8 +1,10 @@
 #ifndef q_learning
 #define q_learning
-
+#include <stdio.h>
+#include<stdlib.h>
+#include<math.h>
+#include "NN.h"
 #include "basic.h"
-#include "NN/NN.h"
 
 int is_board_full(int **board_posn) // it was printing extra boards after the game ended, this is to check if its happening and to stop it
 {
@@ -249,7 +251,7 @@ q_targets *target_q_values(int **board_posn, int whose_turn, nn *nnpointer)
 
 void train_rl(int **board_posn, int whose_turn, nn *nnpointer, double learning_rate)
 {
-    for (int epoch = 0; epoch < 3; epoch++)
+    for (int epoch = 0; epoch < 100; epoch++)
     {
         double loss = 0.0;
 
@@ -282,6 +284,8 @@ void train_rl(int **board_posn, int whose_turn, nn *nnpointer, double learning_r
 
         printf("epoch %d, loss = %f", epoch + 1, loss / 36.0);
         printf("\n\n");
+
+        save_weights("weights.txt",nnpointer);
 
         free(input_board);
         free(flat_board);
@@ -490,43 +494,7 @@ void play_against_posn_strategy_and_train(nn *nnpointer, int **board_posn, int w
         }
         play_against_posn_strategy_and_train(nnpointer, board_posn, whose_turn, train_as, epsilon, learning_rate);
     }
-
-    int input_size = 36;
-    int hidden_size = 24;
-    int output_size = 36;
-
-    FILE *fptr;
-    fptr = fopen("weights.txt","w");
-
-    for(int i = 0;i<hidden_size;i++){
-    fprintf(fptr,"%lf ",nnpointer->b1[i]);
-    }
-    
-    fprintf(fptr,"\n");
-
-     for(int i = 0;i<hidden_size;i++){
-        for(int j = 0;j<input_size;j++){
-            fprintf(fptr,"%lf ",nnpointer->w1[i][j]);
-        }
-        fprintf(fptr,"\n");
-    }
-
-    for(int i = 0;i<output_size;i++){
-        fprintf(fptr,"%lf ",nnpointer->b2[i]);
-    }
-
-    fprintf(fptr,"\n");
-
-    for(int i = 0;i<output_size;i++){
-        for(int j = 0;j<hidden_size;j++){
-            fprintf(fptr,"%lf ",nnpointer->w2[i][j]);
-        }
-        fprintf(fptr,"\n");
-    }
-
-    fclose(fptr);
 }
-
 
 
 #endif

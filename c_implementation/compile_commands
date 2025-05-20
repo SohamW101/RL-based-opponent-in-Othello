@@ -1,0 +1,5 @@
+gcc -g GUI_impl.c -o GUI_impl $(sdl2-config --cflags --libs) -lm
+
+gcc -g q_learning.c -o q_learning $(sdl2-config --cflags --libs) -lm
+
+gcc -g main.c -o main $(sdl2-config --cflags --libs) -lm

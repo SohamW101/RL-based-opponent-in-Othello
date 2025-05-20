@@ -7,6 +7,7 @@ SDL_Renderer* renderer = NULL;
 #define CELL_SIZE 100
 #define RADIUS 40
 
+
 void draw_circle(SDL_Renderer* renderer, int x, int y, int radius, SDL_Color color) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     for (int w = 0; w < radius * 2; w++) {
@@ -154,11 +155,10 @@ void main(){
     print_board(board_posn); 
     int whose_turn = -1;
     //train_rl(board_posn,-1,nnpointer,0.1);
-    prev_pass_flag = 0;
+    //prev_pass_flag = 0;
     //self_play_and_train(nnpointer,board_posn,whose_turn,0.1,0.1);
     prev_pass_flag = 0;
-    play_against_human_and_train(nnpointer,board_posn,-1,1,0.1,0.1);
-    prev_pass_flag = 0;
+    play_against_human_and_train(nnpointer,board_posn,-1,1,0.01,0.1);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

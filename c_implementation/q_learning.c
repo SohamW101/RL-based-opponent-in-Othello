@@ -1,5 +1,5 @@
 #include "basic.h"
-#include "NN/NN.h"
+#include "NN.h"
 
 int is_board_full(int **board_posn) // it was printing extra boards after the game ended, this is to check if its happening and to stop it
 {
@@ -280,6 +280,8 @@ void train_rl(int **board_posn, int whose_turn, nn *nnpointer, double learning_r
         printf("epoch %d, loss = %f", epoch + 1, loss / 36.0);
         printf("\n\n");
 
+        save_weights("weights.txt", nnpointer);
+
         free(input_board);
         free(flat_board);
         free(qt->qts);
@@ -455,11 +457,24 @@ void play_against_posn_strategy_and_train(nn *nnpointer, int **board_posn, int w
     }
 
     int rl_turn = train_as;
-    move_coord *chosen_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
+    move_coord *chosen_move = malloc(sizeof(move_coord));  // Add this allocation
+    if (!chosen_move) {
+        printf("Memory allocation failed\n");
+        return;
+    }
+
     move2 dum_move = strat(board_posn, whose_turn);
     if (whose_turn == rl_turn)
     {
-        chosen_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
+        move_coord *temp_move = select_move(board_posn, whose_turn, nnpointer, epsilon);
+        if (temp_move) {
+            chosen_move->x = temp_move->x;
+            chosen_move->y = temp_move->y;
+            free(temp_move);
+        } else {
+            free(chosen_move);
+            chosen_move = NULL;
+        }
     }
     else
     {
@@ -491,52 +506,48 @@ void play_against_posn_strategy_and_train(nn *nnpointer, int **board_posn, int w
 
 void main()
 {
+    
     int **board_posn = generate_board();
     print_board(board_posn);
-    int input_size = 36;
-    int hidden_size = 24;
-    int output_size = 36;
-    nn *nnpointer = initialise_nn(input_size, hidden_size, output_size);
-    int whose_turn = -1;
-    train_rl(board_posn, -1, nnpointer, 0.1);
-    prev_pass_flag = 0;
-    self_play_and_train(nnpointer, board_posn, whose_turn, 0.1, 0.1);
-    prev_pass_flag = 0;
-    play_against_posn_strategy_and_train(nnpointer, board_posn, -1, -1, 0.1, 0.1);
-    prev_pass_flag = 0;
-    play_against_posn_strategy_and_train(nnpointer, board_posn, 1, -1, 0.1, 0.1);
-    prev_pass_flag = 0;
-
-    FILE *fptr;
-    fptr = fopen("weights.txt",'w');
-
-    for(int i = 0;i<hidden_size;i++){
-    fprintf(fptr,"lf ",nnpointer->b1[i]);
-    }
     
-    fprintf(fptr,"\n");
+    nn *nnpointer = initialise_nn(36, 24, 36);
+    if (!nnpointer) {
+        printf("issue in nnpointer in main");
+        return;
+    }
 
-     for(int i = 0;i<hidden_size;i++){
-        for(int j = 0;j<input_size;j++){
-            fprintf(fptr,"lf ",nnpointer->w1[i][j]);
+    // Try to load existing weights
+    FILE* check_file = fopen("weights.txt", "r");
+    if (check_file != NULL) {
+        fclose(check_file);
+        printf("loading weightss\n");
+        nn* temp = load_weights("weights.txt", nnpointer);
+        if (temp != NULL) {
+            printf("weights loaded\n");
+        } else {
+            printf("issue with weight loading in main\n");
         }
-    fprintf(fptr,"lf ",nnpointer->w1[i]);
+    } else {
+        printf("no weights, random weights used\n");
     }
 
-    fprintf(fptr,"\n");
-
-    for(int i = 0;i<output_size;i++){
-        fprintf(fptr,"lf ",nnpointer->b2[i]);
+    // Training sequence
+    for(int i=0; i<5; i++)
+    {
+        int **tmp_board = deepcopy_2d_list(board_posn);
+        int whose_turn = -1;
+        prev_pass_flag = 0;
+        self_play_and_train(nnpointer, tmp_board, whose_turn, 0.1, 0.1);
+        prev_pass_flag = 0;
+        //play_against_posn_strategy_and_train(nnpointer, tmp_board, -1, 1, 0.1, 0.1);
+        save_weights("weights.txt", nnpointer);
     }
 
-    fprintf(fptr,"\n");
 
-    for(int i = 0;i<output_size;i++){
-        for(int j = 0;j<hidden_size;j++){
-            fprintf(fptr,"lf ",nnpointer->w2[i][j]);
-        }
-        fprintf(fptr,"\n");
+    // Cleanup
+    free_nn(nnpointer);
+    for(int i = 0; i < 6; i++) {
+        free(board_posn[i]);
     }
-
-    fclose(fptr);
+    free(board_posn);
 }

@@ -1,1 +1,25 @@
-pytorch_implementation
+.vscode/
+
+*.o
+*.out
+*.exe
+*.a
+*.so
+*.dll
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+compile_commands.json
+
+*.log
+*.ckpt
+weights.txt
+
+reference material/
+resources.txt
+
+.DS_Store
+Thumbs.db
