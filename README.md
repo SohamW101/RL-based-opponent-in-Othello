@@ -33,7 +33,7 @@ During the endgame, it simply counts the difference in the number of pieces betw
 - **Output Layer:** 36 `tanh` units → Q-values for each board position
 
 
-#### 🔁 Phase 1: Self-Play and Train
+#### ♟️ Phase 1: Self-Play and Train
 - AI learns by playing against itself
 - Q-values predicted using 1-move lookahead
 - Reward based on **mobility strategy**
@@ -49,6 +49,18 @@ During the endgame, it simply counts the difference in the number of pieces betw
 A basic GUI is implemented using **SDL** to render the board and let humans play against the trained agent.
 
 > ✅ SDL must be installed for GUI support.
+
+---
+
+### How to Play
+
+[Othello Rules](https://www.worldothello.org/about/about-othello/othello-rules/official-rules/english)
+
+---
+
+## Demo
+
+[A sample game of trained agent (White) vs human (Black)](demo/trial_othello%20game.webm)
 
 ---
 

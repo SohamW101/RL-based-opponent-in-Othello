@@ -85,7 +85,7 @@ void play_against_human_and_train(nn* nnpointer, int **board_posn, int whose_tur
             make_move(chosen_move->x, chosen_move->y, whose_turn, board_posn);
 
             render_board(board_posn);
-            SDL_Delay(300);
+            SDL_Delay(750);
 
             train_rl(board_posn, whose_turn, nnpointer, learning_rate);
             play_against_human_and_train(nnpointer, board_posn, toggle(whose_turn), train_as, epsilon, learning_rate);
